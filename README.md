@@ -1,5 +1,12 @@
 # Trabajo Fin de Grado - Ingeniería de Software
 
+Facial expressions detection using Keras model and Haar Cascade classifier. Trained with FERPlus and AffectNet with followinf results:
+
+| Number of classes | Accuracy         |
+| ----------------- |:----------------:|
+| 3 classes         | 86%              |
+| 5 classes         | 74%              |
+
 # Requirements
 You can install the required packages directly from the [requirements.txt](./requirements.txt) file using the following command:
 
