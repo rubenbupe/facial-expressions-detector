@@ -1,6 +1,6 @@
 # Trabajo Fin de Grado - Ingeniería de Software
 
-Facial expressions detection using Keras model and Haar Cascade classifier. Trained with FERPlus and AffectNet with followinf results:
+Facial expressions detection using Keras model and Haar Cascade classifier. Trained with FERPlus and AffectNet with the following results:
 
 | Number of classes | Accuracy         |
 | ----------------- |:----------------:|
