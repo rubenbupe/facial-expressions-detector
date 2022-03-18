@@ -25,8 +25,11 @@ modes_classifiers = {
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Facial emotion recognition using neural network.')
 	parser.add_argument('--class-mode', type=str, default='basic', choices=['basic', 'extra'], required=False,
-						help="""Number of classes to detect. Basic mode classifies 3 diferent emotions with 87%
-						 of accuracy while Extra mode classifies 5 different classes with 74% of accuracy.""")
+						help="""Number of classes to detect. Basic mode classifies 3 diferent emotions with 87%%
+						 of accuracy while Extra mode classifies 5 different classes with 74%% of accuracy.""")
+	parser.add_argument('--input-mode', type=str, default='webcam', choices=['webcam', 'screen'], required=False,
+						help="""Input source to detect faces(WIP).""") 
+	# TODO: implementar grabación de pantalla
 	parser.add_argument('--background', action=argparse.BooleanOptionalAction,
 						help="""Execute in background without window.""")
 
