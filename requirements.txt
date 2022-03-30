@@ -1,4 +1,8 @@
+h5py==3.6.0
 keras==2.8.0
+Keras-Preprocessing==1.1.2
+mss==6.1.0
 numpy==1.22.3
 opencv-python==4.5.5.64
+Pillow==9.0.1
 tensorflow==2.8.0
