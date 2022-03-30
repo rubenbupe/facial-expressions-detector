@@ -1,3 +1,4 @@
+
 __author__ = "Rubén Buzón Pérez"
 __email__ = "ruben.buzon@live.u-tad.com"
 
@@ -11,7 +12,7 @@ modes_classes = {
 
 modes_models = {
 	'basic': './models/emotions_3_classes.hdf5',
-	'extra': './models/emotions_5_classes.hdf5',
+	'extra': './models/ultimo.hdf5',
 }
 
 modes_classifiers = {
@@ -35,27 +36,40 @@ if __name__ == '__main__':
 
 	args = parser.parse_args()
 
+	model = None
+	model_classes = None
+	classifier = None
+	start_method = None
+
 	match args.class_mode:
 
 		case 'basic':
 			model = modes_models.get('basic')
 			model_classes = modes_classes.get('basic')
 			classifier = modes_classifiers.get('basic')
-
-			detector = utils.EmotionDetector(model=model, classifier=classifier, classes=model_classes, background=args.background)
-
-			detector.start_webcam_detection()
 			
 		case 'extra':
 			model = modes_models.get('extra')
 			model_classes = modes_classes.get('extra')
 			classifier = modes_classifiers.get('extra')
-
-			detector = utils.EmotionDetector(model=model, classifier=classifier, classes=model_classes, background=args.background)
-
-			detector.start_webcam_detection()
 			
 		case _:
 			raise ValueError(f"Invalid argument {args.class_mode} for --class-mode")
+	
+	detector = utils.EmotionDetector(model=model, classifier=classifier, classes=model_classes, background=args.background)
+
+	match args.input_mode:
+
+		case 'webcam':
+			start_method = detector.start_webcam_detection
+			
+		case 'screen':
+			start_method = detector.start_screen_detection
+			
+		case _:
+			raise ValueError(f"Invalid argument {args.input_mode} for --input-mode")
+
+	start_method()
+
 
 	

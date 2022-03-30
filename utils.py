@@ -2,10 +2,18 @@ __author__ = "Rubén Buzón Pérez"
 __email__ = "ruben.buzon@live.u-tad.com"
 
 
+from turtle import left
+from xmlrpc.client import Boolean
 import tensorflow as tf
 import numpy as np
 import cv2
 import time
+from mss import mss
+from PIL import Image
+
+
+img_height = 96
+img_width = 96
 
 
 class Face:
@@ -153,6 +161,36 @@ class EmotionDetector:
 
 		self.frame_counter += 1
 
+	def _detect_frame(self, frame) -> bool:
+		frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+		detected = self.classifier.detectMultiScale(frame_gray, scaleFactor=1.3, minNeighbors=5, minSize=(50, 50))
+		
+		for x, y, w, h in detected:
+			cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
+			cv2.rectangle(frame, (x-1, y), (x+w//2, y-20), (255, 0, 0), -1)
+			face = frame[y+5:y+h-5, x+20:x+w-20]
+			face = cv2.resize(face, (img_height, img_width)) 
+			face_obj = self.track_face(x, y, x+w, y+h)
+			
+			prediction = self.model.predict(np.array([face.reshape((img_height, img_width, 3))]))
+			predicted_class = prediction.argmax()
+			predicted_emotion = self.classes[predicted_class]
+			predicted_accuracy = np.amax(prediction)
+
+			if face_obj.register_emotion(predicted_class) == True:
+				# TODO: implementar narrador?
+				print(f"Face {face_obj.id} changed to emotion {predicted_emotion}")
+
+			cv2.putText(frame,f"#{face_obj.id} {predicted_emotion} {predicted_accuracy * 100:.0f}%",(x+10,y-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2, cv2.LINE_AA)
+			
+		if(not self.background):
+			cv2.imshow('Emotion Detector', frame)
+			if cv2.waitKey(5) != -1:
+				return False
+
+		self.post_frame_processing()
+		return True
+
 
 	def start_webcam_detection(self) -> None:
 		"""Starts an infinite loop for detecting faces using Webcam mode
@@ -161,34 +199,30 @@ class EmotionDetector:
 		while True:
 			_, frame = self.video.read()
 
-			frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-			detected = self.classifier.detectMultiScale(frame_gray, scaleFactor=1.3, minNeighbors=5, minSize=(50, 50))
-			
-			for x, y, w, h in detected:
-				cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
-				cv2.rectangle(frame, (x-1, y), (x+w//2, y-20), (255, 0, 0), -1)
-				face = frame[y+5:y+h-5, x+20:x+w-20]
-				face = cv2.resize(face, (224, 224)) 
-				face_obj = self.track_face(x, y, x+w, y+h)
-				
-				prediction = self.model.predict(np.array([face.reshape((224, 224, 3))]))
-				predicted_class = prediction.argmax()
-				predicted_emotion = self.classes[predicted_class]
-				predicted_accuracy = np.amax(prediction)
-
-				if face_obj.register_emotion(predicted_class) == True:
-					# TODO: implementar narrador?
-					print(f"Face {face_obj.id} changed to emotion {predicted_emotion}")
-
-				cv2.putText(frame,f"#{face_obj.id} {predicted_emotion} {predicted_accuracy * 100:.0f}%",(x+10,y-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2, cv2.LINE_AA)
-				
-			if(not self.background):
-				cv2.imshow('Emotion Detector', frame)
-				frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-				if cv2.waitKey(5) != -1:
-					break
-
-			self.post_frame_processing()
+			if not self._detect_frame(frame):
+				break
 
 		self.video.release()
+		cv2.destroyAllWindows()
+
+	def start_screen_detection(self) -> None:
+		"""Starts an infinite loop for detecting faces using Screen mode
+		"""
+
+		with mss() as sct:
+			monitor = sct.monitors[1]
+			while True:
+				screenShot = sct.grab(monitor)
+				img = Image.frombytes(
+					'RGB', 
+					(screenShot.width, screenShot.height), 
+					screenShot.rgb, 
+				)
+				
+				frame = np.array(img)
+				frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+
+				if not self._detect_frame(frame):
+					break
+
 		cv2.destroyAllWindows()
