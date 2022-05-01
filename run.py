@@ -6,13 +6,13 @@ import argparse
 import utils
 
 modes_classes = {
-	'basic': ["Neutral", "Happy", "Sad"],
-	'extra': ["Neutral", "Happy", "Sad", "Surprised", "Angry"],
+	'basic': ["Neutral", "Feliz", "Triste"],
+	'extra': ["Neutral", "Feliz", "Triste", "Sorprendido", "Enfadado"],
 }
 
 modes_models = {
 	'basic': './models/emotions_3_classes.hdf5',
-	'extra': './models/ultimo.hdf5',
+	'extra': './models/emotions_5_classes.hdf5',
 }
 
 modes_classifiers = {

@@ -10,10 +10,11 @@ import cv2
 import time
 from mss import mss
 from PIL import Image
+from time import gmtime, strftime
 
 
-img_height = 96
-img_width = 96
+img_height = 224
+img_width = 224
 
 
 class Face:
@@ -179,12 +180,12 @@ class EmotionDetector:
 
 			if face_obj.register_emotion(predicted_class) == True:
 				# TODO: implementar narrador?
-				print(f"Face {face_obj.id} changed to emotion {predicted_emotion}")
+				print(f"El rostro {face_obj.id + 1} ha cambiado a {predicted_emotion}")
 
-			cv2.putText(frame,f"#{face_obj.id} {predicted_emotion} {predicted_accuracy * 100:.0f}%",(x+10,y-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2, cv2.LINE_AA)
+			cv2.putText(frame,f"#{face_obj.id + 1} {predicted_emotion}",(x+10,y-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2, cv2.LINE_AA)
 			
 		if(not self.background):
-			cv2.imshow('Emotion Detector', frame)
+			cv2.imshow('Detector de expresiones faciales', frame)
 			if cv2.waitKey(5) != -1:
 				return False
 
